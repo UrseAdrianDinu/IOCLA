@@ -1,0 +1,88 @@
+Variabile:
+lungimeatoi - retine lungimea sirului dat ca parametru, din cadrul functiei
+iocla_atoi.
+check - retine cuvantul dat ca parametru functiei checknumber
+checklungime - retine lungimea cuvantului dat ca parametru
+	       functiei checknumber
+createnodecuvant - retine cuvantul dat ca parametru functiei createnode
+createnodelungime - retine lungimea cuvantului dat ca parametru
+		    functiei createnode
+node - reprezinta nodul nou construit in functia createnode
+esteinarbore - este un flag care arata daca un nod se gaseste in
+               arbore
+
+----------------------------------------------------------
+
+Functii auxiliare:
+
+checknumber - Functie care primeste un string si verifica daca 
+este numar.Functia intoarce 1 daca stringul este numar si 0 in
+caz contrar.
+
+Am salvat registrele ebx,ecx,edx facand push ebx, push ecx, push edx.
+Am initializat registrele.
+Am apelat functia strlen si am comparat lungimea cu 1.Daca este mai mare
+atunci stringul este numar si am setat eax la 1.
+Daca lungimea este 1, am comparat caracterul cu '0'.
+Daca caracterul este mai mare sau egal decat '0',el este numar si am
+setat eax la 1.
+In caz contrar caracterul este simbol si am setat eax la 0.
+In final, am refacut registrele.
+
+createnode - Functie care primeste un string si creeaza un nod avand la data
+sirul dat ca parametru.
+
+Am salvat registrele ebx,ecx,edx facnd push ebx, push ecx, push edx.
+Am initializat registrele.
+Am apelat functia strlen pentru a afla lungimea stringului.
+Lungimea am salvat-o in variabila createnodelungime.
+Am alocat memorie pentru nod.
+Am alocat memorie pentru node->data.
+Dupa am copiat folosind strcpy stringul dat ca parametru in
+node->data.
+Am setat node->left si node->right la NULL.
+In final am refacut registrele si am pus in eax noul nod.
+
+build_tree -Functie care primeste ca parametru un nod radacina si un string
+si adauga in arbore nodul nou creat.
+
+Am salvat registrele.
+Am verificat daca nodul curent este null.
+Am verificat daca nodul curent contine numar.In acest caz
+se iese din functie (numerele sunt mereu frunze).
+Daca nu contine numar, am apelat recursiv build_tree(root->left,string)
+si build_tree(root->right,string).
+Dupa verific daca nodul a fost adaugat in arbore.
+Daca nu a fost adaugat, atunci verific daca nodul curent are fiu-stang.
+Daca nu are, atunci am creat un nod nou si l-am pus la fiul-stang al
+nodului curent.Am setat flagul [esteinarbore] la 1.
+Daca are fiu-stang, atunci am verificat daca are fiu-drept.
+Daca nu are, atunci am creat un nod nou si l-am pus la fiul-drept al
+nodului curent.Am setat flagul [esteinarbore] la 1.
+In final, am refacut registrele.
+
+----------------------------------------------------------
+
+Functia iocla_atoi
+
+Am salvat registrele ebx,ecx,edx facand push ebx, push ecx, push edx.
+Am initializat registrele.
+Am setat flagul iocla_atoiflag la 0 (flagul indica daca 
+un numar este negativ).
+Am comparat primul caracter din sir cu '-'.
+Daca sunt egale am setat flagul la 1 si am incrementat iteratorul.
+Dupa am parcurs sirul pana la intalnirea terminatorului de sir si am
+construit numarul.
+Am verificat daca flagul este 1.
+Daca da, atunci am inmultit numarul cu -1.
+In final am refacut registrele.
+
+
+Functia create_tree
+
+Am salvat registrele.
+Am initializat registrele.
+Am extras primul cuvant si am creat nodul radacina.
+Dupa am extras cuvinte pana cand se ajunge la null.
+Pentru fiecare cuvant extras am apelat functia build_tree.
+In final am pus in eax nodul radacina root si am refacut registrele.
